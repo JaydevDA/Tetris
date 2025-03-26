@@ -28,14 +28,12 @@
 
 ## Declaring Variables 🔤 :
 Values which will help in setting a graphical representation of the snake
-- making a constant width of 40 units and length of 25 units.
+- we set a width of 10 units and a height of 20 units as given in the problem statement.
 - **bool gameover** - to end the game when one of the many conditions is met.
-- **int Highscore** - to display the highscore of the overall game.
-- **x,y and Xfruit,Yfruit** - Position of the head of the snake and a fruit respectively.
-- **int score** - Declaring score as a variable.
-- **int tailX[100] and tailY[100]** - to store the two dimensional position of elements in the tail.
-- **int tLength** - declaring the length of the tail as a variable.
-- **enum direction** - to declare enum of directions like left,up,down and right, and also stop.
+- we set 0 for empty cells and 1 for non-empty cells.
+- we intitially set score and highscore to 0.
+- if no difficulty chosen by the user, we set the difficulty to easy(1.easy) by default.
+- we set speed to 300 by default.
 
 ```
 const int width = 10;
@@ -47,3 +45,27 @@ int highScore = 0;
 int difficulty = 1;  
 int speed = 300;  
 ```
+
+## Structuring the tetriminoes 🏗️
+- We create a 3d array of tetriminoes A[a][b][c], where b and c are the x and y coordinates of the tetriminoes, and a is the no. of tetriminoes.
+- For I shape, we construct a 4x4 cell structure, in which we set the top row to 1(filled) and the rest 0(empty).
+- For O shape, we construct a 2x2 cell structure, in which we set all the cells to 1.
+- For L shape, we construct a 2x3 cell structure, in which we set the top row and the 1st cell of the bottom row to 1 and the rest 0.
+- for J shape, we construct a 2x3 cell structure, in which we set the top row and the last cell of the bottom row to 1 and the rest 0.
+- for T shape, we construct a 2x3 cell structure, in which we set the middle cell of the top row and all cells in the bottom row to 1 and the rest 0.
+- For S shape, we construct a 2x3 cell structure, in which we set the the first cell of the first row to 0 and the last cell of the second row to 0.
+- For Z shape, we construct a 2x3 cell sturcture, in which we set the last cell of the first row to 0 and the first cell of the second row to 0.
+
+```
+int tetrominoes[7][4][4] = {
+    {{1, 1, 1, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+    {{1, 1}, {1, 1}},
+    {{0, 1, 0}, {1, 1, 1}},
+    {{1, 1, 0}, {0, 1, 1}},
+    {{0, 1, 1}, {1, 1, 0}},
+    {{1, 1, 1}, {1, 0, 0}},
+    {{1, 1, 1}, {0, 0, 1}}
+};
+```
+
+
