@@ -1,7 +1,7 @@
-# A Simple Snake Game 🐍
+# A Simple tetris game 🧱
 - By Jaydev Dhabaliya 😎
 - Dhruvir S Mayavat 😎
-- Rashi Krishnani 👧🏻
+- Rashi Krishnani 😎
 - Rudrapratap Singh 😎
 
 # Description 🔍
@@ -27,7 +27,7 @@
 ```
 
 ## Declaring Variables 🔤 :
-Values which will help in setting a graphical representation of the snake
+Values which will help in setting a graphical representation of the grid
 - we set a width of 10 units and a height of 20 units as given in the problem statement.
 - **bool gameover** - to end the game when one of the many conditions is met.
 - we set 0 for empty cells and 1 for non-empty cells.
@@ -68,4 +68,32 @@ int tetrominoes[7][4][4] = {
 };
 ```
 
+## Running the program 🚀
+
+- **srand(time(0))** is used to initialize the random number generator with a unique seed.
+- we use while(true) to let the player choose if they want to restart.
+- we ask the user to give an input for difficulty and take the input.
+- if difficulty = 1 than speed to 400 and difficulty = 2 than speed to 250 else 100.
+- we implement intitialGame() resets the game state to prepare for a new game session by clearing the game board, resetting scores, and generating the first block.
+- gameLoop() is the core game loop of your Tetris-like game, handling user input, block movement, and game state updates until the game ends.
+- we take an input y or n to restart the game. if y then we restart the game else we end it.
+  
+
+```
+int main() {
+    srand(time(0));
+    while (true) {
+        cout << "Select Difficulty: 1. Easy  2. Medium  3. Hard\n";
+        cin >> difficulty;
+        speed = (difficulty == 1) ? 400 : (difficulty == 2) ? 250 : 100;
+        initializeGame();
+        gameLoop();
+        cout << "Play again? (y/n): ";
+        char choice;
+        cin >> choice;
+        if (choice != 'y') break;
+    }
+    return 0;
+}
+```
 
