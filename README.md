@@ -86,10 +86,10 @@ struct Block {
 ### void copyShape()
 - This function copyShape()  is used to copy a Tetromino shape into a 4x4 matrix in a Tetris-like game. Here's a brief breakdown:
 
-1) Function Definition
+- Function Definition
    void copyShape(int shape[4][4], int id)` declares the function with a 4x4 matrix shape as the target and an integer id to select the Tetromino.
 
-2) Shape Copying:
+- Shape Copying:
    shape[i][j] = tetrominoes[id][i][j]  assigns the value from the tetrominoes array (selected by id) to the corresponding cell in shape.
 
 - Ensures that the game correctly assigns a new block when generating one.
@@ -109,19 +109,19 @@ void copyShape(int shape[4][4], int id) {
 ### void generateBlock()
 - This function generateBlock() is used to create a new block in a Tetris-like game. Here's a brief breakdown:
 
-1)Random Block Selection:
+- Random Block Selection:
 
 rand() % 7 picks a random number between 0 and 6, representing one of the 7 classic Tetris block shapes (e.g., I, J, L, O, S, T, Z).
 
-2)Shape Assignment:
+- Shape Assignment:
 
 copyShape(currentBlock.shape, id) copies the selected block shape into currentBlock.
 
-3)Size Determination:
+- Size Determination:
 
 The I-block (id == 0) is 4 units long so size is equal to 4, the rest can fit in size = 3, thus 3 otherwise.
 
-4)Positioning:
+- Positioning:
 
 The block is centered at the top of the game grid (x = width / 2 - 1, y = 0).
 ```
@@ -158,21 +158,21 @@ void initializeGame() {
 ### void drawBoard()
 - This function drawBoard() is responsible for rendering the Tetris game board in the console. Here's a brief breakdown:
 
-1)Reset Cursor Position:
+- Reset Cursor Position:
 
 Moves the console cursor to (0, 0) to overwrite the previous frame (for smooth animation).
 
-2)Create a Temporary Board:
+- Create a Temporary Board:
 
 Copies the main board into tempBoard to avoid modifying the original grid.
 
-3)Draw the Current Block:
+- Draw the Current Block:
 
 Overlays the currentBlock onto tempBoard at its current position (x, y).
 
 Only draws the block's filled cells (1) if they are within visible bounds (currentBlock.y + i >= 0).
 
-4)Render the Board:
+- Render the Board:
 
 Prints each cell of tempBoard:
 
@@ -182,7 +182,7 @@ for filled cells (blocks)
 
 Borders (|) are added on both sides for visual clarity.
 
-5)Display Game Info:
+- Display Game Info:  
 
 Shows the current score, high score, and difficulty level (Easy/Medium/Hard).
 
@@ -209,6 +209,37 @@ void drawBoard() {
         cout << "|" << endl;
     }
     cout << "Score: " << score << " | High Score: " << highScore << " | Difficulty: " << (difficulty == 1 ? "Easy" : difficulty == 2 ? "Medium" : "Hard") << endl;
+}
+```
+
+### bool IsValidMove(int NewX, int NewY)
+- newX and NewY is the new position to check for validity
+- this function iterates through the block's shape (a 2D array where 1 represents part of the block).
+
+- Check each cell of the block – if it's part of the block (currentBlock.shape[i][j] is true), calculate its new position (nx, ny).
+
+- Check for collisions:
+
+- If the new position is outside the left/right boundaries (nx < 0 or nx >= width).
+
+- If the new position is below the bottom (ny >= height).
+
+- If the new position overlaps with an occupied cell on the board (ny >= 0 && board[ny][nx] is true).
+
+- Return false if any collision is detected, otherwise return true (move is valid).
+
+```
+bool isValidMove(int newX, int newY) {
+    for (int i = 0; i < currentBlock.size; i++) {
+        for (int j = 0; j < currentBlock.size; j++) {
+            if (currentBlock.shape[i][j]) {
+                int nx = newX + j, ny = newY + i;
+                if (nx < 0 || nx >= width || ny >= height || (ny >= 0 && board[ny][nx]))
+                    return false;
+            }
+        }
+    }
+    return true;
 }
 ```
 
