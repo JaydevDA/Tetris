@@ -92,6 +92,10 @@ struct Block {
 2) Shape Copying:
    shape[i][j] = tetrominoes[id][i][j]  assigns the value from the tetrominoes array (selected by id) to the corresponding cell in shape.
 
+- Ensures that the game correctly assigns a new block when generating one.
+
+This function is used in generateBlock() to set up a new tetromino when needed.
+
 ```
 void copyShape(int shape[4][4], int id) {
     for (int i = 0; i < 4; i++){
@@ -115,7 +119,7 @@ copyShape(currentBlock.shape, id) copies the selected block shape into currentBl
 
 3)Size Determination:
 
-The I-block (id == 0) is 4 units long and the O-block(id == 4) is 2 units long, while all other blocks are 2x3 in size.
+The I-block (id == 0) is 4 units long so size is equal to 4, the rest can fit in size = 3, thus 3 otherwise.
 
 4)Positioning:
 
@@ -129,6 +133,86 @@ void generateBlock() {
     currentBlock.y = 0;
 }
 ```
+
+### void initializeGame()
+- gameover is initially set to false and the score to zero.
+- Here we set the contents of the grid.
+- Initially the grid is empty, thus setting all the cells to zero.
+- The generateBlock() function call generates the first tetromino (block) at the start of the game.
+
+Since the game board is empty at the beginning, we need to spawn an initial block for the player to control.
+
+Without this line, the game would start with an empty board and no falling piece.
+  
+```
+void initializeGame() {
+    gameOver = false;
+    score = 0;
+    for (int i = 0; i < height; i++)
+        for (int j = 0; j < width; j++)
+            board[i][j] = 0;
+    generateBlock();
+}
+```
+
+### void drawBoard()
+- This function drawBoard() is responsible for rendering the Tetris game board in the console. Here's a brief breakdown:
+
+1)Reset Cursor Position:
+
+Moves the console cursor to (0, 0) to overwrite the previous frame (for smooth animation).
+
+2)Create a Temporary Board:
+
+Copies the main board into tempBoard to avoid modifying the original grid.
+
+3)Draw the Current Block:
+
+Overlays the currentBlock onto tempBoard at its current position (x, y).
+
+Only draws the block's filled cells (1) if they are within visible bounds (currentBlock.y + i >= 0).
+
+4)Render the Board:
+
+Prints each cell of tempBoard:
+
+for filled cells (blocks)
+
+(space) for empty cells
+
+Borders (|) are added on both sides for visual clarity.
+
+5)Display Game Info:
+
+Shows the current score, high score, and difficulty level (Easy/Medium/Hard).
+
+```
+void drawBoard() {
+    COORD cursorPosition = {0, 0};
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
+    int tempBoard[height][width];
+    for (int i = 0; i < height; i++)
+        for (int j = 0; j < width; j++)
+            tempBoard[i][j] = board[i][j];
+    for (int i = 0; i < currentBlock.size; i++) {
+        for (int j = 0; j < currentBlock.size; j++) {
+            if (currentBlock.shape[i][j] && currentBlock.y + i >= 0) {
+                tempBoard[currentBlock.y + i][currentBlock.x + j] = 1;
+            }
+        }
+    }
+    for (int i = 0; i < height; i++) {
+        cout << "| ";
+        for (int j = 0; j < width; j++) {
+            cout << (tempBoard[i][j] ? "#" : " ") << " ";
+        }
+        cout << "|" << endl;
+    }
+    cout << "Score: " << score << " | High Score: " << highScore << " | Difficulty: " << (difficulty == 1 ? "Easy" : difficulty == 2 ? "Medium" : "Hard") << endl;
+}
+```
+
+
 
 ## Running the program 🚀
 
