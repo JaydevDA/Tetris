@@ -243,6 +243,187 @@ bool isValidMove(int newX, int newY) {
 }
 ```
 
+### void clearLines()
+- This function checks the Tetris game board for any completed (fully filled) rows, clears them, shifts the above rows down, and updates the player's score.
+
+- Check for Completed Rows
+
+Iterates through each row (i) of the game board (board[height][width]).
+
+For each row, checks if all cells are filled (board[i][j] != 0).
+
+If any cell is empty (0), the row is not full (full = false).
+
+- Clear Full Rows & Shift Board
+
+If a row is full (full = true):
+
+Shifts all rows above it down by one (overwriting the cleared row).
+
+The top row (k = 0) is left empty (implied, since it’s not explicitly reset here).
+
+- Update Score
+
+Awards 10 points for each cleared line (score += 10).
+
+```
+void clearLines() {
+    for (int i = 0; i < height; i++) {
+        bool full = true;
+        for (int j = 0; j < width; j++) {
+            if (!board[i][j]) {
+                full = false;
+                break;
+            }
+        }
+        if (full) {
+            for (int k = i; k > 0; k--) {
+                for (int j = 0; j < width; j++) {
+                    board[k][j] = board[k - 1][j];
+                }
+            }
+            score += 10;
+        }
+    }
+}
+```
+
+### void rotateBlock()
+- This function rotates the current Tetris block 90 degrees clockwise while checking for collisions with the game boundaries or other blocks. If a collision is detected, the rotation is canceled.
+
+- Create a Temporary Rotated Block
+
+Stores the rotated block in temp[4][4] using matrix rotation logic:
+The following line of code:
+temp[j][currentBlock.size - 1 - i] = currentBlock.shape[i][j];
+
+For a 3x3 block (e.g., an "L" shape), this performs a clockwise rotation.
+
+- Collision Detection
+
+Checks if the rotated block (temp) would overlap with:
+
+The left/right walls (nx < 0 || nx >= width).
+
+The bottom (ny >= height).
+
+Other locked blocks (board[ny][nx] is filled).
+
+If any collision is detected, the function exits early (no rotation occurs).
+
+- Apply Rotation (If Valid)
+
+- If no collisions are detected, the rotated shape (temp) is copied back into currentBlock.shape.
+  
+```
+void rotateBlock() {
+    int temp[4][4];
+    for (int i = 0; i < currentBlock.size; i++)
+        for (int j = 0; j < currentBlock.size; j++)
+            temp[j][currentBlock.size - 1 - i] = currentBlock.shape[i][j];
+    for (int i = 0; i < currentBlock.size; i++) {
+        for (int j = 0; j < currentBlock.size; j++) {
+            if (temp[i][j]) {
+                int nx = currentBlock.x + j, ny = currentBlock.y + i;
+                if (nx < 0 || nx >= width || ny >= height || board[ny][nx])
+                    return;
+            }
+        }
+    }
+    for (int i = 0; i < currentBlock.size; i++)
+        for (int j = 0; j < currentBlock.size; j++)
+            currentBlock.shape[i][j] = temp[i][j];
+}
+```
+
+### void moveBlock
+- This function moves the current Tetris block by a specified horizontal (dx) and vertical (dy) offset while checking for valid movement. If the block cannot move downward, it locks the block in place, clears completed lines, and spawns a new block - ending the game if the spawn position is invalid.  
+- Movement Validation
+   - Checks if the target position (currentBlock.x + dx, currentBlock.y + dy) is valid using **isValidMove()**
+   - Updates the block's position if movement is valid (currentBlock.x += dx, currentBlock.y += dy)
+
+- Block Placement Handling
+   - If downward movement is invalid (dy == 1):  
+     - Permanently places the block by marking its occupied cells on the game board (board[currentBlock.y + i][currentBlock.x + j] = 1)  
+     - Clears any completed lines using clearLines()  
+     - Generates a new block using generateBlock()
+
+- Game State Check
+   - Verifies if the newly spawned block can be placed at its starting position  
+   - Triggers game over (gameOver = true) if the spawn position is invalid
+  
+```
+void moveBlock(int dx, int dy) {
+    if (isValidMove(currentBlock.x + dx, currentBlock.y + dy)) {
+        currentBlock.x += dx;
+        currentBlock.y += dy;
+    } else if (dy == 1) {
+        for (int i = 0; i < currentBlock.size; i++) {
+            for (int j = 0; j < currentBlock.size; j++) {
+                if (currentBlock.shape[i][j]) {
+                    board[currentBlock.y + i][currentBlock.x + j] = 1;
+                }
+            }
+        }
+        clearLines();
+        generateBlock();
+        if (!isValidMove(currentBlock.x, currentBlock.y)) {
+            gameOver = true;
+        }
+    }
+}
+```
+
+### void gameLoop() 
+
+- This function is the core game loop of your Tetris-like game, handling user input, block movement, and game state updates until the game ends.
+
+- Renders the Board
+
+Calls drawBoard() to display the current game state (blocks, score, etc.).
+
+- Handles Player Input (Non-blocking)
+
+Uses _kbhit() and _getch() to detect key presses:
+
+'a': Moves block left (moveBlock(-1, 0)).
+
+'d': Moves block right (moveBlock(1, 0)).
+
+'s': Moves block down (moveBlock(0, 1)).
+
+'w': Rotates the block (rotateBlock()).
+
+- Automatic Block Falling
+
+After processing input (or if none), the block moves down automatically (moveBlock(0, 1)).
+
+Speed is controlled by Sleep(speed) (adjustable for difficulty).
+
+- Terminates on Game Over
+
+Exits the loop when gameOver becomes true (e.g., block stacks to the top).
+
+Displays the final score (cout << "Game Over!...").
+
+```
+void gameLoop() {
+    while (!gameOver) {
+        drawBoard();
+        if (_kbhit()) {
+            switch (_getch()) {
+                case 'a': moveBlock(-1, 0); break;
+                case 'd': moveBlock(1, 0); break;
+                case 's': moveBlock(0, 1); break;
+                case 'w': rotateBlock(); break;
+            }
+        }
+        Sleep(speed);
+        moveBlock(0, 1);
+    }
+    cout << "Game Over! Final Score: " << score << endl;
+}
+```
 
 
 ## Running the program 🚀
@@ -256,6 +437,193 @@ bool isValidMove(int newX, int newY) {
 - we take an input y or n to restart the game. if y then we restart the game else we end it.
 
 ```
+int main() {
+    srand(time(0));
+    while (true) {
+        cout << "Select Difficulty: 1. Easy  2. Medium  3. Hard\n";
+        cin >> difficulty;
+        speed = (difficulty == 1) ? 400 : (difficulty == 2) ? 250 : 100;
+        initializeGame();
+        gameLoop();
+        cout << "Play again? (y/n): ";
+        char choice;
+        cin >> choice;
+        if (choice != 'y') break;
+    }
+    return 0;
+}
+```
+
+# complete code:
+```
+#include <iostream>
+#include <conio.h>
+#include <windows.h>
+#include <ctime>
+
+using namespace std;
+
+const int width = 10;
+const int height = 20;
+bool gameOver;
+int board[height][width] = {0};
+int score = 0;
+int highScore = 0;
+int difficulty = 1; // 1 = Easy, 2 = Medium, 3 = Hard
+int speed = 300;
+
+int tetrominoes[7][4][4] = {
+    {{1, 1, 1, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+    {{1, 1}, {1, 1}},
+    {{0, 1, 0}, {1, 1, 1}},
+    {{1, 1, 0}, {0, 1, 1}},
+    {{0, 1, 1}, {1, 1, 0}},
+    {{1, 1, 1}, {1, 0, 0}},
+    {{1, 1, 1}, {0, 0, 1}}
+};
+
+struct Block {
+    int shape[4][4];
+    int size;
+    int x, y;
+} currentBlock;
+
+void copyShape(int shape[4][4], int id) {
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            shape[i][j] = tetrominoes[id][i][j];
+}
+
+void generateBlock() {
+    int id = rand() % 7;
+    copyShape(currentBlock.shape, id);
+    currentBlock.size = (id == 0) ? 4 : 3;
+    currentBlock.x = width / 2 - 1;
+    currentBlock.y = 0;
+}
+
+void initializeGame() {
+    gameOver = false;
+    score = 0;
+    for (int i = 0; i < height; i++)
+        for (int j = 0; j < width; j++)
+            board[i][j] = 0;
+    generateBlock();
+}
+
+void drawBoard() {
+    COORD cursorPosition = {0, 0};
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
+    int tempBoard[height][width];
+    for (int i = 0; i < height; i++)
+        for (int j = 0; j < width; j++)
+            tempBoard[i][j] = board[i][j];
+    for (int i = 0; i < currentBlock.size; i++) {
+        for (int j = 0; j < currentBlock.size; j++) {
+            if (currentBlock.shape[i][j] && currentBlock.y + i >= 0) {
+                tempBoard[currentBlock.y + i][currentBlock.x + j] = 1;
+            }
+        }
+    }
+    for (int i = 0; i < height; i++) {
+        cout << "| ";
+        for (int j = 0; j < width; j++) {
+            cout << (tempBoard[i][j] ? "#" : " ") << " ";
+        }
+        cout << "|" << endl;
+    }
+    cout << "Score: " << score << " | High Score: " << highScore << " | Difficulty: " << (difficulty == 1 ? "Easy" : difficulty == 2 ? "Medium" : "Hard") << endl;
+}
+
+bool isValidMove(int newX, int newY) {
+    for (int i = 0; i < currentBlock.size; i++) {
+        for (int j = 0; j < currentBlock.size; j++) {
+            if (currentBlock.shape[i][j]) {
+                int nx = newX + j, ny = newY + i;
+                if (nx < 0 || nx >= width || ny >= height || (ny >= 0 && board[ny][nx]))
+                    return false;
+            }
+        }
+    }
+    return true;
+}
+
+void clearLines() {
+    for (int i = 0; i < height; i++) {
+        bool full = true;
+        for (int j = 0; j < width; j++) {
+            if (!board[i][j]) {
+                full = false;
+                break;
+            }
+        }
+        if (full) {
+            for (int k = i; k > 0; k--) {
+                for (int j = 0; j < width; j++) {
+                    board[k][j] = board[k - 1][j];
+                }
+            }
+            score += 10;
+        }
+    }
+}
+
+void rotateBlock() {
+    int temp[4][4];
+    for (int i = 0; i < currentBlock.size; i++)
+        for (int j = 0; j < currentBlock.size; j++)
+            temp[j][currentBlock.size - 1 - i] = currentBlock.shape[i][j];
+    for (int i = 0; i < currentBlock.size; i++) {
+        for (int j = 0; j < currentBlock.size; j++) {
+            if (temp[i][j]) {
+                int nx = currentBlock.x + j, ny = currentBlock.y + i;
+                if (nx < 0 || nx >= width || ny >= height || board[ny][nx])
+                    return;
+            }
+        }
+    }
+    for (int i = 0; i < currentBlock.size; i++)
+        for (int j = 0; j < currentBlock.size; j++)
+            currentBlock.shape[i][j] = temp[i][j];
+}
+
+void moveBlock(int dx, int dy) {
+    if (isValidMove(currentBlock.x + dx, currentBlock.y + dy)) {
+        currentBlock.x += dx;
+        currentBlock.y += dy;
+    } else if (dy == 1) {
+        for (int i = 0; i < currentBlock.size; i++) {
+            for (int j = 0; j < currentBlock.size; j++) {
+                if (currentBlock.shape[i][j]) {
+                    board[currentBlock.y + i][currentBlock.x + j] = 1;
+                }
+            }
+        }
+        clearLines();
+        generateBlock();
+        if (!isValidMove(currentBlock.x, currentBlock.y)) {
+            gameOver = true;
+        }
+    }
+}
+
+void gameLoop() {
+    while (!gameOver) {
+        drawBoard();
+        if (_kbhit()) {
+            switch (_getch()) {
+                case 'a': moveBlock(-1, 0); break;
+                case 'd': moveBlock(1, 0); break;
+                case 's': moveBlock(0, 1); break;
+                case 'w': rotateBlock(); break;
+            }
+        }
+        Sleep(speed);
+        moveBlock(0, 1);
+    }
+    cout << "Game Over! Final Score: " << score << endl;
+}
+
 int main() {
     srand(time(0));
     while (true) {
