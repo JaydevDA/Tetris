@@ -46,7 +46,7 @@ int difficulty = 1;
 int speed = 300;  
 ```
 
-## Structuring the tetriminoes 🏗️
+## Constructing the tetriminoes 🏗️
 - We create a 3d array of tetriminoes A[a][b][c], where b and c are the x and y coordinates of the tetriminoes, and a is the no. of tetriminoes.
 - For I shape, we construct a 4x4 cell structure, in which we set the top row to 1(filled) and the rest 0(empty).
 - For O shape, we construct a 2x2 cell structure, in which we set all the cells to 1.
@@ -68,6 +68,68 @@ int tetrominoes[7][4][4] = {
 };
 ```
 
+- We create a struct Block, which comprises of shape, size and the position of a block.
+- **int shape[4][4]** - The 4x4 matrix representing the block's shape
+- **int size** - The size of the block (3x3 or 4x4)
+- **int x,y** - The block's position on the board
+
+```
+struct Block {
+    int shape[4][4];  
+    int size;         
+    int x, y;
+} currentBlock; 
+```
+
+## Functions used 📊
+
+### void copyShape()
+- This function copyShape()  is used to copy a Tetromino shape into a 4x4 matrix in a Tetris-like game. Here's a brief breakdown:
+
+1) Function Definition
+   void copyShape(int shape[4][4], int id)` declares the function with a 4x4 matrix shape as the target and an integer id to select the Tetromino.
+
+2) Shape Copying:
+   shape[i][j] = tetrominoes[id][i][j]  assigns the value from the tetrominoes array (selected by id) to the corresponding cell in shape.
+
+```
+void copyShape(int shape[4][4], int id) {
+    for (int i = 0; i < 4; i++){
+        for (int j = 0; j < 4; j++){
+            shape[i][j] = tetrominoes[id][i][j];
+        }
+    }    
+}
+```
+
+### void generateBlock()
+- This function generateBlock() is used to create a new block in a Tetris-like game. Here's a brief breakdown:
+
+1)Random Block Selection:
+
+rand() % 7 picks a random number between 0 and 6, representing one of the 7 classic Tetris block shapes (e.g., I, J, L, O, S, T, Z).
+
+2)Shape Assignment:
+
+copyShape(currentBlock.shape, id) copies the selected block shape into currentBlock.
+
+3)Size Determination:
+
+The I-block (id == 0) is 4 units long and the O-block(id == 4) is 2 units long, while all other blocks are 2x3 in size.
+
+4)Positioning:
+
+The block is centered at the top of the game grid (x = width / 2 - 1, y = 0).
+```
+void generateBlock() {
+    int id = rand() % 7;
+    copyShape(currentBlock.shape, id);
+    currentBlock.size = (id == 0) ? 4 : 3;
+    currentBlock.x = width / 2 - 1;
+    currentBlock.y = 0;
+}
+```
+
 ## Running the program 🚀
 
 - **srand(time(0))** is used to initialize the random number generator with a unique seed.
@@ -77,7 +139,6 @@ int tetrominoes[7][4][4] = {
 - we implement intitialGame() resets the game state to prepare for a new game session by clearing the game board, resetting scores, and generating the first block.
 - gameLoop() is the core game loop of your Tetris-like game, handling user input, block movement, and game state updates until the game ends.
 - we take an input y or n to restart the game. if y then we restart the game else we end it.
-  
 
 ```
 int main() {
